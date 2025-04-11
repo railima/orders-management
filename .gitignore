@@ -1,0 +1,48 @@
+# Dotnet artifacts
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+*.ds_store
+*.swp
+
+# Build & Publish outputs
+publish/
+out/
+
+# Project files
+*.user
+*.lock
+*.psess
+*.suo
+*.userprefs
+
+# Visual Studio / Visual Studio Code / Rider directories
+.vs/
+.vscode/
+.idea/
+
+# EF Migrations
+Migrations/
+
+# OS-generated files
+Thumbs.db
+.DS_Store
+
+# Node / React / Next.js
+node_modules/
+.npm/
+
+# Next.js build output
+.next/
+
+# Environment variables
+.env
+.env.*
+
+# Additional tooling
+coverage/
+*.local.settings.json
