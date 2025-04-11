@@ -9,10 +9,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\OrdersManagement.Application\OrdersManagement.Application.csproj" />
+    <ProjectReference Include="..\OrdersManagement.Infrastructure\OrdersManagement.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
