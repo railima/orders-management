@@ -6,6 +6,6 @@ namespace OrdersManagement.Domain.Entities
         public int NomeProduto { get; set; }
         public int Quantidade { get; set; }
         public int PedidoCentralId { get; set; }
-        public required PedidoCentral PedidoCentral { get; set; } = null!;
+        public required PedidoCentral PedidoCentral { get; set; }
     }
 }

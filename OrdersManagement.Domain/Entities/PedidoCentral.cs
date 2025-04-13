@@ -10,5 +10,6 @@ namespace OrdersManagement.Domain.Entities
         public StatusPedido Status { get; set; } = StatusPedido.Pendente;
         public int RevendaId { get; set; }
         public required Revenda Revenda { get; set; }
+        public ICollection<ProdutoPedidoCentral>? ProdutosPedidoCentral { get; set; }
     }
 }

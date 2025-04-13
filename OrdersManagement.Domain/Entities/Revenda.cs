@@ -11,6 +11,7 @@ namespace OrdersManagement.Domain.Entities
         public ICollection<Telefone>? Telefones { get; set; }
         public required ICollection<Contato> Contatos { get; set; }
         public required ICollection<Endereco> Enderecos { get; set; }
-        public ICollection<PedidoCliente>? Pedidos { get; set; }
+        public ICollection<PedidoCliente>? PedidosCliente { get; set; }
+        public ICollection<PedidoCentral>? PedidosCentral { get; set; }
     }
 }

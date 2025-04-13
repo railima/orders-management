@@ -10,6 +10,6 @@ namespace OrdersManagement.Domain.Entities
         public int RevendaId { get; set; }
         public required Revenda Revenda { get; set; }
         
-        public ICollection<ProdutoPedidoCliente>? Produtos { get; set; }
+        public ICollection<ProdutoPedidoCliente>? ProdutosPedidoCliente { get; set; }
     }
 }
