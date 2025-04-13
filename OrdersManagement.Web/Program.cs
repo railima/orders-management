@@ -2,12 +2,17 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OrdersManagement.Application.Interfaces.Repositories;
+using OrdersManagement.Application.Interfaces.Services;
+using OrdersManagement.Application.Services;
 using OrdersManagement.Infrastructure.Persistence;
+using OrdersManagement.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddOpenApi();
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -66,6 +71,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// TODO: Separar
+builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -80,4 +89,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 
+app.MapControllers();
 app.Run();

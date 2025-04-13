@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OrdersManagement.Domain\OrdersManagement.Domain.csproj" />
+    <ProjectReference Include="..\OrdersManagement.Application\OrdersManagement.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
