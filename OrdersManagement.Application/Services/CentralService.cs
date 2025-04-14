@@ -11,7 +11,7 @@ namespace OrdersManagement.Application.Services
 
             await Task.Delay(1000);
 
-            bool disponivel = false; // Simulando disponibilidade. Para simular indisponibilidade, altere para false.
+            bool disponivel = true; // Simulando disponibilidade. Para simular indisponibilidade, altere para false.
             if (!disponivel)
             {
                 throw new HttpRequestException("API indisponível no momento.");

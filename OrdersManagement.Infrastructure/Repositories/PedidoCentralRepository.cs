@@ -22,6 +22,21 @@ namespace OrdersManagement.Infrastructure.Repositories
             return await _context.SaveChangesAsync().ContinueWith(t => pedidoCentral);
         }
 
+        public async Task<IEnumerable<PedidoCentral>> GetAllByStatusAsync(StatusPedido emEspera)
+        {
+            var pedidos = await _context.PedidosCentral
+                .Include(p => p.ProdutosPedidoCentral)
+                .Where(p => p.Status == emEspera)
+                .ToListAsync();
+
+            if (pedidos == null || !pedidos.Any())
+            {
+                throw new KeyNotFoundException("Nenhum pedido encontrado com o status especificado.");
+            }
+
+            return pedidos;
+        }
+
         public async Task<PedidoCentral> GetByIdAsync(int pedidoCentralId)
         {
             var pedidoCentral = await _context.PedidosCentral

@@ -84,6 +84,7 @@ builder.Services.AddScoped<IPedidoClienteRepository, PedidoClienteRepository>();
 builder.Services.AddScoped<IPedidoCentralRepository, PedidoCentralRepository>();
 
 builder.Services.AddAuthorization();
+builder.Services.AddHostedService<RetryEmEsperaHostedService>();
 
 var app = builder.Build();
 
