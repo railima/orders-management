@@ -52,7 +52,7 @@ namespace OrdersManagement.Infrastructure.Repositories
             var existingRevenda = await _context.Revendas.FindAsync(revenda.Id);
             if (existingRevenda == null)
             {
-                throw new KeyNotFoundException($"Revenda with ID {revenda.Id} not found.");
+                throw new KeyNotFoundException($"Revenda com ID {revenda.Id} não encontrado.");
             }
 
             _context.Entry(existingRevenda).CurrentValues.SetValues(revenda);
