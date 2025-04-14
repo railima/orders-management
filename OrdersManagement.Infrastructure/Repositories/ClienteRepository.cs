@@ -48,7 +48,7 @@ namespace OrdersManagement.Infrastructure.Repositories
             var existingCliente = await _context.Clientes.FindAsync(cliente.Id);
             if (existingCliente == null)
             {
-                throw new KeyNotFoundException($"Cliente with ID {cliente.Id} not found.");
+                throw new KeyNotFoundException($"Cliente com ID {cliente.Id} não encontrado.");
             }
 
             _context.Entry(existingCliente).CurrentValues.SetValues(cliente);
