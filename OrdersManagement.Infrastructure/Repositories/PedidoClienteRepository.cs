@@ -17,26 +17,50 @@ namespace OrdersManagement.Infrastructure.Repositories
 
         public async Task<IEnumerable<PedidoClienteResponseDTO>> GetAllPendentesAsync(int revendaId)
         {
-            var pedidoClienteDb = await _context.PedidosCliente
+            var pedidosEmMemoria = await _context.PedidosCliente
                 .Include(p => p.Revenda)
                 .Include(p => p.Cliente)
+                .Include(p => p.ProdutosPedidoCliente)
                 .Where(p => p.RevendaId == revendaId && p.Status == StatusPedido.Pendente)
-                .Select(p => new PedidoClienteResponseDTO
-                {
-                    Id = p.Id,
-                    NumeroPedido = p.NumeroPedido,
-                    ProdutosPedidoCliente = 
-                        (ICollection<ProdutoPedidoClienteDTO>)
-                        (p.ProdutosPedidoCliente ?? Enumerable.Empty<ProdutoPedidoCliente>()).Select(pp => new ProdutoPedidoCliente
-                        {
-                            Id = pp.Id,
-                            NomeProduto = pp.NomeProduto,
-                            Quantidade = pp.Quantidade
-                        }).ToList(),
-                })
                 .ToListAsync();
 
+            var pedidoClienteDb = pedidosEmMemoria.Select(p => new PedidoClienteResponseDTO
+            {
+                Id = p.Id,
+                NumeroPedido = p.NumeroPedido,
+                ProdutosPedidoCliente = p.ProdutosPedidoCliente?
+                    .Select(pp => new ProdutoPedidoClienteDTO
+                    {
+                        Id = pp.Id,
+                        NomeProduto = pp.NomeProduto,
+                        Quantidade = pp.Quantidade
+                    })
+                    .ToList() ?? new List<ProdutoPedidoClienteDTO>()
+            })
+            .ToList();
             return pedidoClienteDb;
+        }
+
+        public async Task<PedidoCliente> GetByIdAsync(int pedidoClienteId)
+        {
+            var pedidoCliente = await _context.PedidosCliente
+                .Include(p => p.ProdutosPedidoCliente)
+                .FirstOrDefaultAsync(p => p.Id == pedidoClienteId);
+
+            if (pedidoCliente == null)
+            {
+                throw new KeyNotFoundException($"Pedido Cliente with ID {pedidoClienteId} not found.");
+            }
+
+            return pedidoCliente;
+        }
+
+        public async Task<PedidoCliente> UpdateAsync(PedidoCliente pedidoCliente)
+        {
+            ArgumentNullException.ThrowIfNull(pedidoCliente, nameof(pedidoCliente));
+            _context.PedidosCliente.Update(pedidoCliente);
+            await _context.SaveChangesAsync();
+            return pedidoCliente;
         }
     }
 }

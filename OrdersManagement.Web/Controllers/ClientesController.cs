@@ -43,7 +43,7 @@ namespace OrdersManagement.Web.Controllers
                 return BadRequest();
             }
             var createdCliente = await _clienteService.CreateClienteAsync(cliente);
-            return CreatedAtAction(nameof(GetClienteById), new { id = createdCliente.Id }, createdCliente);
+            return CreatedAtAction(nameof(CreateCliente), new { id = createdCliente.Id }, createdCliente);
         }
 
         [HttpPut("{id}")]
@@ -66,6 +66,17 @@ namespace OrdersManagement.Web.Controllers
                 return NotFound();
             }
             return NoContent();
+        }
+
+        [HttpGet("{id}/pedidos")]
+        public async Task<IActionResult> GetPedidosByClienteId(int id)
+        {
+            var pedidos = await _clienteService.GetPedidosByClienteIdAsync(id);
+            if (pedidos == null || !pedidos.Any())
+            {
+                return NotFound();
+            }
+            return Ok(pedidos);
         }
     }
 }

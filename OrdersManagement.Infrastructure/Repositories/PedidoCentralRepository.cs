@@ -15,7 +15,7 @@ namespace OrdersManagement.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<PedidoCentral> CreatePedidoCentralAsync(PedidoCentral pedidoCentral)
+        public async Task<PedidoCentral> CreatePedidoAsync(PedidoCentral pedidoCentral)
         {
             ArgumentNullException.ThrowIfNull(pedidoCentral, nameof(pedidoCentral));
             await _context.PedidosCentral.AddAsync(pedidoCentral);

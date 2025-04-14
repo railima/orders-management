@@ -6,6 +6,7 @@ namespace OrdersManagement.Application.Services
     using OrdersManagement.Application.Interfaces.Services;
     using OrdersManagement.Domain.DTOs;
     using OrdersManagement.Domain.Entities;
+    using OrdersManagement.Domain.Enums;
 
     public class PedidoClienteService : IPedidoClienteService
     {
@@ -24,6 +25,17 @@ namespace OrdersManagement.Application.Services
             }
 
             return pedidoClienteDb;
+        }
+
+        public async Task MarkAsEnviadoAsync(int pedidoClienteId)
+        {
+            var pedidoCliente = await _pedidoClienteRepository.GetByIdAsync(pedidoClienteId);
+            if (pedidoCliente == null)
+            {
+                throw new KeyNotFoundException($"Pedido Cliente with ID {pedidoClienteId} not found.");
+            }
+            pedidoCliente.Status = StatusPedido.Enviado;
+            await _pedidoClienteRepository.UpdateAsync(pedidoCliente);
         }
     }
 }
