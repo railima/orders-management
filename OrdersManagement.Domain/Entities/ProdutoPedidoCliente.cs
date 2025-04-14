@@ -10,13 +10,13 @@ namespace OrdersManagement.Domain.Entities
         public int PedidoClienteId { get; set; }
         public PedidoCliente? PedidoCliente { get; set; }
 
-        public static explicit operator ProdutoPedidoCliente(ProdutoPedidoClienteDTO v)
+        public static explicit operator ProdutoPedidoCliente(ProdutoPedidoClienteDTO dto)
         {
             return new ProdutoPedidoCliente
             {
-                Id = v.Id,
-                NomeProduto = v.NomeProduto,
-                Quantidade = v.Quantidade,
+                Id = dto.Id,
+                NomeProduto = dto.NomeProduto,
+                Quantidade = dto.Quantidade,
                 
             };
         }

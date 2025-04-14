@@ -75,10 +75,12 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IRevendaService, RevendaService>();
 builder.Services.AddScoped<IPedidoClienteService, PedidoClienteService>();
+builder.Services.AddScoped<IPedidoCentralService, PedidoCentralService>();
 
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IRevendaRepository, RevendaRepository>();
 builder.Services.AddScoped<IPedidoClienteRepository, PedidoClienteRepository>();
+builder.Services.AddScoped<IPedidoCentralRepository, PedidoCentralRepository>();
 
 builder.Services.AddAuthorization();
 
