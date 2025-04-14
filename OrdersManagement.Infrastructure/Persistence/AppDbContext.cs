@@ -1,5 +1,6 @@
  using Microsoft.EntityFrameworkCore;
 using OrdersManagement.Domain.Entities;
+using OrdersManagement.Domain.ValueObjects;
 
 namespace OrdersManagement.Infrastructure.Persistence
 {
@@ -23,6 +24,8 @@ namespace OrdersManagement.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Owned<Cnpj>();
+
             modelBuilder.Entity<Cliente>()
                 .HasMany(c => c.Pedidos)
                 .WithOne(p => p.Cliente)
@@ -31,12 +34,14 @@ namespace OrdersManagement.Infrastructure.Persistence
             modelBuilder.Entity<Contato>()
                 .HasOne(c => c.Revenda)
                 .WithMany(r => r.Contatos)
-                .HasForeignKey(c => c.RevendaId);
+                .HasForeignKey(c => c.RevendaId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Endereco>()
                 .HasOne(e => e.Revenda)
                 .WithMany(r => r.Enderecos)
-                .HasForeignKey(e => e.RevendaId);
+                .HasForeignKey(e => e.RevendaId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<PedidoCentral>()
                 .HasOne(p => p.Revenda)
@@ -62,6 +67,16 @@ namespace OrdersManagement.Infrastructure.Persistence
                 .HasOne(t => t.Revenda)
                 .WithMany(r => r.Telefones)
                 .HasForeignKey(t => t.RevendaId);
+
+            modelBuilder.Entity<Revenda>(entity =>
+                {
+                    entity.OwnsOne(r => r.Cnpj, cnpj =>
+                    {
+                        cnpj.Property(x => x.Value)
+                            .HasColumnName("Cnpj")
+                            .IsRequired();
+                    });
+                });
         }
     }
 }

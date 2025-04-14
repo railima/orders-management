@@ -73,7 +73,10 @@ builder.Services.AddAuthentication(options =>
 
 // TODO: Separar
 builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<IRevendaService, RevendaService>();
+
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IRevendaRepository, RevendaRepository>();
 
 builder.Services.AddAuthorization();
 
