@@ -34,6 +34,21 @@ namespace OrdersManagement.Application.Services
             return _pedidoCentralRepository.CreatePedidoAsync(pedidoCentral);
         }
 
+        public async Task<IEnumerable<PedidoCentral>> GetAllByStatusAsync(StatusPedido emEspera)
+        {
+            if (emEspera == null)
+            {
+                throw new ArgumentNullException(nameof(emEspera));
+            }
+
+            var pedidos = await _pedidoCentralRepository.GetAllByStatusAsync(emEspera);
+            if (pedidos == null || !pedidos.Any())
+            {
+                throw new KeyNotFoundException("Nenhum pedido encontrado com o status especificado.");
+            }
+            return pedidos;
+        }
+
         public async Task MarkAsEnviadoAsync(int pedidoCentralId)
         {
             var pedidoCentral = await _pedidoCentralRepository.GetByIdAsync(pedidoCentralId);
