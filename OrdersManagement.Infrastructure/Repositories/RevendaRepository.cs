@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OrdersManagement.Application.Interfaces.Repositories;
+using OrdersManagement.Domain.DTOs;
 using OrdersManagement.Domain.Entities;
 using OrdersManagement.Infrastructure.Persistence;
 
@@ -11,6 +12,23 @@ namespace OrdersManagement.Infrastructure.Repositories
         public RevendaRepository(AppDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<PedidoClienteResponseDTO> CreatePedidoClienteAsync(int id, PedidoClienteRequestDTO pedidoCliente)
+        {
+            ArgumentNullException.ThrowIfNull(pedidoCliente, nameof(pedidoCliente));
+            var revendaDb = await _context.Revendas.FindAsync(id) ?? throw new KeyNotFoundException($"Revenda com ID {id} não encontrado.");
+            var pedido = new PedidoCliente
+            {
+                ClienteId = pedidoCliente.ClienteId,
+                ProdutosPedidoCliente = pedidoCliente.ProdutosPedidoCliente?.Select(p => (ProdutoPedidoCliente)p).ToList()
+            };
+
+            revendaDb.PedidosCliente ??= new List<PedidoCliente>();
+            revendaDb.PedidosCliente.Add(pedido);
+            await _context.SaveChangesAsync();
+
+            return pedido;
         }
 
         public async Task<Revenda> CreateRevendaAsync(Revenda revenda)

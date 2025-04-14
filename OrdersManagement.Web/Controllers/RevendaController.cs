@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OrdersManagement.Application.Interfaces.Services;
 using OrdersManagement.Domain.DTOs;
-using OrdersManagement.Domain.Entities;
 
 namespace OrdersManagement.Web.Controllers
 {
@@ -66,6 +65,17 @@ namespace OrdersManagement.Web.Controllers
                 return NotFound();
             }
             return NoContent();
+        }
+
+        [HttpPost("{id}/pedido-cliente")]
+        public async Task<IActionResult> CreatePedidoCliente(int id, [FromBody] PedidoClienteRequestDTO pedidoCliente)
+        {
+            if (pedidoCliente == null)
+            {
+                return BadRequest();
+            }
+            var createdPedido = await _revendaService.CreatePedidoClienteAsync(id, pedidoCliente);
+            return CreatedAtAction(nameof(GetRevendaById), new { id = createdPedido.Id }, createdPedido);
         }
     }
 }
