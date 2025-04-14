@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using OrdersManagement.Application.Interfaces.Repositories;
+using OrdersManagement.Domain.DTOs;
 using OrdersManagement.Domain.Entities;
+using OrdersManagement.Domain.Enums;
 using OrdersManagement.Infrastructure.Persistence;
 
 namespace OrdersManagement.Infrastructure.Repositories
@@ -13,47 +15,28 @@ namespace OrdersManagement.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<PedidoCliente> CreatePedidoClienteAsync(PedidoCliente pedidoCliente)
+        public async Task<IEnumerable<PedidoClienteResponseDTO>> GetAllPendentesAsync(int revendaId)
         {
-            _context.PedidosCliente.Add(pedidoCliente);
-            await _context.SaveChangesAsync();
-            return pedidoCliente;
-        }
+            var pedidoClienteDb = await _context.PedidosCliente
+                .Include(p => p.Revenda)
+                .Include(p => p.Cliente)
+                .Where(p => p.RevendaId == revendaId && p.Status == StatusPedido.Pendente)
+                .Select(p => new PedidoClienteResponseDTO
+                {
+                    Id = p.Id,
+                    NumeroPedido = p.NumeroPedido,
+                    ProdutosPedidoCliente = 
+                        (ICollection<ProdutoPedidoClienteDTO>)
+                        (p.ProdutosPedidoCliente ?? Enumerable.Empty<ProdutoPedidoCliente>()).Select(pp => new ProdutoPedidoCliente
+                        {
+                            Id = pp.Id,
+                            NomeProduto = pp.NomeProduto,
+                            Quantidade = pp.Quantidade
+                        }).ToList(),
+                })
+                .ToListAsync();
 
-        public async Task<bool> DeletePedidoClienteAsync(int id)
-        {
-            var pedidoCliente = await _context.PedidosCliente.FindAsync(id);
-            if (pedidoCliente == null)
-            {
-                return false;
-            }
-
-            _context.PedidosCliente.Remove(pedidoCliente);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<PedidoCliente>> GetAllPedidosClienteAsync()
-        {
-            return await _context.PedidosCliente.ToListAsync();
-        }
-
-        public async Task<PedidoCliente?> GetPedidoClienteByIdAsync(int id)
-        {
-            return await _context.PedidosCliente.FindAsync(id);
-        }
-
-        public async Task<PedidoCliente> UpdatePedidoClienteAsync(PedidoCliente pedidoCliente)
-        {
-            var existingPedidoCliente = await _context.PedidosCliente.FindAsync(pedidoCliente.Id);
-            if (existingPedidoCliente == null)
-            {
-                throw new KeyNotFoundException($"Pedido Cliente com ID {pedidoCliente.Id} não encontrado.");
-            }
-
-            _context.Entry(existingPedidoCliente).CurrentValues.SetValues(pedidoCliente);
-            await _context.SaveChangesAsync();
-            return existingPedidoCliente;
+            return pedidoClienteDb;
         }
     }
 }

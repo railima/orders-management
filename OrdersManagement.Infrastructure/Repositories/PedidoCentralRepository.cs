@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using OrdersManagement.Application.Interfaces.Repositories;
+using OrdersManagement.Domain.DTOs;
 using OrdersManagement.Domain.Entities;
+using OrdersManagement.Domain.Enums;
 using OrdersManagement.Infrastructure.Persistence;
 
 namespace OrdersManagement.Infrastructure.Repositories
@@ -15,45 +17,31 @@ namespace OrdersManagement.Infrastructure.Repositories
 
         public async Task<PedidoCentral> CreatePedidoCentralAsync(PedidoCentral pedidoCentral)
         {
-            _context.PedidosCentral.Add(pedidoCentral);
-            await _context.SaveChangesAsync();
+            ArgumentNullException.ThrowIfNull(pedidoCentral, nameof(pedidoCentral));
+            await _context.PedidosCentral.AddAsync(pedidoCentral);
+            return await _context.SaveChangesAsync().ContinueWith(t => pedidoCentral);
+        }
+
+        public async Task<PedidoCentral> GetByIdAsync(int pedidoCentralId)
+        {
+            var pedidoCentral = await _context.PedidosCentral
+                .Include(p => p.ProdutosPedidoCentral)
+                .FirstOrDefaultAsync(p => p.Id == pedidoCentralId);
+
+            if (pedidoCentral == null)
+            {
+                throw new KeyNotFoundException($"Pedido Central with ID {pedidoCentralId} not found.");
+            }
+
             return pedidoCentral;
         }
 
-        public async Task<bool> DeletePedidoCentralAsync(int id)
+        public async Task<PedidoCentral> UpdateAsync(PedidoCentral pedidoCentral)
         {
-            var pedidoCentral = await _context.PedidosCentral.FindAsync(id);
-            if (pedidoCentral == null)
-            {
-                return false;
-            }
-
-            _context.PedidosCentral.Remove(pedidoCentral);
+            ArgumentNullException.ThrowIfNull(pedidoCentral, nameof(pedidoCentral));
+            _context.PedidosCentral.Update(pedidoCentral);
             await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<PedidoCentral>> GetAllPedidosCentralAsync()
-        {
-            return await _context.PedidosCentral.ToListAsync();
-        }
-
-        public async Task<PedidoCentral?> GetPedidoCentralByIdAsync(int id)
-        {
-            return await _context.PedidosCentral.FindAsync(id);
-        }
-
-        public async Task<PedidoCentral> UpdatePedidoCentralAsync(PedidoCentral pedidoCentral)
-        {
-            var existingPedidoCentral = await _context.PedidosCentral.FindAsync(pedidoCentral.Id);
-            if (existingPedidoCentral == null)
-            {
-                throw new KeyNotFoundException($"Pedido Central com ID {pedidoCentral.Id} não encontrado.");
-            }
-
-            _context.Entry(existingPedidoCentral).CurrentValues.SetValues(pedidoCentral);
-            await _context.SaveChangesAsync();
-            return existingPedidoCentral;
+            return pedidoCentral;
         }
     }
 }

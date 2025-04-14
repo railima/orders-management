@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OrdersManagement.Application.Interfaces.Services;
 using OrdersManagement.Domain.DTOs;
-using OrdersManagement.Domain.Entities;
 
 namespace OrdersManagement.Web.Controllers
 {
@@ -11,10 +10,21 @@ namespace OrdersManagement.Web.Controllers
     public class RevendaController : ControllerBase
     {
         private readonly IRevendaService _revendaService;
+        private readonly IPedidoClienteService _pedidoClienteService;
+        private readonly ICentralService _centralService;
+        private readonly IPedidoCentralService _pedidoCentralService;
 
-        public RevendaController(IRevendaService revendaService)
+        public RevendaController(
+            IRevendaService revendaService,
+            IPedidoClienteService pedidoClienteService,
+            ICentralService centralService,
+            IPedidoCentralService pedidoCentralService
+            )
         {
             _revendaService = revendaService;
+            _pedidoClienteService = pedidoClienteService;
+            _centralService = centralService;
+            _pedidoCentralService = pedidoCentralService;
         }
 
         [HttpGet]
@@ -66,6 +76,60 @@ namespace OrdersManagement.Web.Controllers
                 return NotFound();
             }
             return NoContent();
+        }
+
+        [HttpPost("{id}/pedido-cliente")]
+        public async Task<IActionResult> CreatePedidoCliente(int id, [FromBody] PedidoClienteRequestDTO pedidoCliente)
+        {
+            if (pedidoCliente == null)
+            {
+                return BadRequest();
+            }
+            var createdPedido = await _revendaService.CreatePedidoClienteAsync(id, pedidoCliente);
+            return CreatedAtAction(nameof(GetRevendaById), new { id = createdPedido.Id }, createdPedido);
+        }
+
+        [HttpPost("{id}/pedido-central")]
+        public async Task<IActionResult> IssuePedidoCentral(int id)
+        {
+                var revenda = await _revendaService.GetRevendaByIdAsync(id);
+                if (revenda == null) return NotFound("Revenda não encontrada.");
+
+                var pedidosPendentes = await _pedidoClienteService.GetAllPendentesAsync(id);
+                int total = pedidosPendentes?.Sum(p => p.ProdutosPedidoCliente?.Count ?? 0) ?? 0;
+                if (total < 1000)
+                {
+                    return BadRequest("O pedido mínimo é de 1000 itens.");
+                }
+
+                var itens = (ICollection<ProdutoPedidoCentralDTO>)pedidosPendentes.SelectMany(p => p.ProdutosPedidoCliente).ToList();
+                var pedidoCentral = new PedidoCentralRequestDTO
+                {
+                    RevendaId = id,
+                    Itens = itens
+                };
+
+            try
+            {
+                var response = await _centralService.CreatePedidoCentralAsync(pedidoCentral);
+
+                if (response == null)
+                {
+
+                    return StatusCode(500, "Erro ao criar pedido central.");
+                }
+
+                foreach (var pedido in pedidosPendentes)
+                {
+                    await _pedidoCentralService.MarkAsEnviadoAsync(pedido.Id);
+                }
+                return Ok(response);
+            }
+            catch (HttpRequestException ex)
+            {
+                await _pedidoCentralService.CreatePedidoPendenteAsync(id, itens);
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, "API da Ambev indisponível. Pedido salvo como PENDENTE.");
+            }
         }
     }
 }

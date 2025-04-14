@@ -15,6 +15,18 @@ namespace OrdersManagement.Application.Services
             _revendaRepository = revendaRepository;
         }
 
+        public async Task<PedidoClienteResponseDTO> CreatePedidoClienteAsync(int id, PedidoClienteRequestDTO pedidoCliente)
+        {
+            ArgumentNullException.ThrowIfNull(pedidoCliente, nameof(pedidoCliente));
+            var revendaDb = await _revendaRepository.GetRevendaByIdAsync(id);
+            if (revendaDb == null)
+            {
+                throw new KeyNotFoundException($"Revenda com ID {id} não encontrado.");
+            }
+
+            return await _revendaRepository.CreatePedidoClienteAsync(id, pedidoCliente);
+        }
+
         public async Task<RevendaDTO> CreateRevendaAsync(RevendaDTO revenda)
         {
             ArgumentNullException.ThrowIfNull(revenda, nameof(revenda));

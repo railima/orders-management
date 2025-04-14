@@ -4,10 +4,8 @@ namespace OrdersManagement.Application.Interfaces.Repositories
 
     public interface IPedidoCentralRepository
     {
-        Task<PedidoCentral?> GetPedidoCentralByIdAsync(int id);
-        Task<IEnumerable<PedidoCentral>> GetAllPedidosCentralAsync();
         Task<PedidoCentral> CreatePedidoCentralAsync(PedidoCentral pedidoCentral);
-        Task<PedidoCentral> UpdatePedidoCentralAsync(PedidoCentral pedidoCentral);
-        Task<bool> DeletePedidoCentralAsync(int id);
+        Task<PedidoCentral> GetByIdAsync(int pedidoCentralId);
+        Task<PedidoCentral> UpdateAsync(PedidoCentral pedidoCentral);
     }
 }

@@ -9,5 +9,6 @@ namespace OrdersManagement.Application.Interfaces.Services
         Task<RevendaDTO> CreateRevendaAsync(RevendaDTO revenda);
         Task<RevendaDTO> UpdateRevendaAsync(RevendaDTO revenda);
         Task<bool> DeleteRevendaAsync(int id);
+        Task<PedidoClienteResponseDTO> CreatePedidoClienteAsync(int id, PedidoClienteRequestDTO pedidoCliente);
     }
 }
