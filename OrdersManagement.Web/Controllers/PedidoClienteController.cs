@@ -10,57 +10,57 @@ namespace OrdersManagement.Web.Controllers
     [ApiController]
     public class PedidoClienteController : ControllerBase
     {
-        private readonly IPedidoClienteService _revendaService;
+        private readonly IPedidoClienteService _pedidoClienteService;
 
-        public PedidoClienteController(IPedidoClienteService revendaService)
+        public PedidoClienteController(IPedidoClienteService pedidoClienteService)
         {
-            _revendaService = revendaService;
+            _pedidoClienteService = pedidoClienteService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllPedidosCliente()
         {
-            var revendas = await _revendaService.GetAllPedidosClienteAsync();
-            return Ok(revendas);
+            var clientes = await _pedidoClienteService.GetAllPedidosClienteAsync();
+            return Ok(clientes);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPedidoClienteById(int id)
         {
-            var revenda = await _revendaService.GetPedidoClienteByIdAsync(id);
-            if (revenda == null)
+            var cliente = await _pedidoClienteService.GetPedidoClienteByIdAsync(id);
+            if (cliente == null)
             {
                 return NotFound();
             }
-            return Ok(revenda);
+            return Ok(cliente);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePedidoCliente([FromBody] PedidoClienteDTO revenda)
+        public async Task<IActionResult> CreatePedidoCliente([FromBody] PedidoClienteDTO cliente)
         {
-            if (revenda == null)
+            if (cliente == null)
             {
                 return BadRequest();
             }
-            var createdPedidoCliente = await _revendaService.CreatePedidoClienteAsync(revenda);
+            var createdPedidoCliente = await _pedidoClienteService.CreatePedidoClienteAsync(cliente);
             return CreatedAtAction(nameof(GetPedidoClienteById), new { id = createdPedidoCliente.Id }, createdPedidoCliente);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePedidoCliente(int id, [FromBody] PedidoClienteDTO revenda)
+        public async Task<IActionResult> UpdatePedidoCliente(int id, [FromBody] PedidoClienteDTO cliente)
         {
-            if (id != revenda.Id)
+            if (id != cliente.Id)
             {
                 return BadRequest();
             }
-            var updatedPedidoCliente = await _revendaService.UpdatePedidoClienteAsync(revenda);
+            var updatedPedidoCliente = await _pedidoClienteService.UpdatePedidoClienteAsync(cliente);
             return Ok(updatedPedidoCliente);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePedidoCliente(int id)
         {
-            var result = await _revendaService.DeletePedidoClienteAsync(id);
+            var result = await _pedidoClienteService.DeletePedidoClienteAsync(id);
             if (!result)
             {
                 return NotFound();
