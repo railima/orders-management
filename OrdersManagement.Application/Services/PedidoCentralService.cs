@@ -6,6 +6,7 @@ namespace OrdersManagement.Application.Services
     using OrdersManagement.Application.Interfaces.Services;
     using OrdersManagement.Domain.DTOs;
     using OrdersManagement.Domain.Entities;
+    using OrdersManagement.Domain.Enums;
 
     public class PedidoCentralService : IPedidoCentralService
     {
@@ -15,75 +16,32 @@ namespace OrdersManagement.Application.Services
             _pedidoCentralRepository = pedidoCentralRepository;
         }
 
-        public async Task<PedidoCentralDTO> CreatePedidoCentralAsync(PedidoCentralDTO pedidoCentral)
+        public Task<PedidoCentral> CreatePedidoPendenteAsync(int revendaId, IEnumerable<ProdutoPedidoCentralDTO> produtos)
         {
-            ArgumentNullException.ThrowIfNull(pedidoCentral, nameof(pedidoCentral));
-            var pedidoCentralDb = await _pedidoCentralRepository.GetPedidoCentralByIdAsync(pedidoCentral.Id);
-            if (pedidoCentralDb != null)
+            ArgumentNullException.ThrowIfNull(produtos, nameof(produtos));
+            var pedidoCentral = new PedidoCentral
             {
-                throw new InvalidOperationException($"Já existe um pedidoCentral com o ID {pedidoCentral.Id}.");
-            }
+                RevendaId = revendaId,
+                ProdutosPedidoCentral = produtos.Select(p => new ProdutoPedidoCentral
+                {
+                    Id = p.Id,
+                    NomeProduto = p.NomeProduto,
+                    Quantidade = p.Quantidade,
+                }).ToList(),
+            };
 
-            var pedidoCentralCriado = await _pedidoCentralRepository.CreatePedidoCentralAsync((PedidoCentral)pedidoCentral);
-            if (pedidoCentralCriado == null)
-            {
-                throw new InvalidOperationException("Falha ao criar o pedidoCentral");
-            }
-            return pedidoCentralCriado;
+            return _pedidoCentralRepository.CreatePedidoCentralAsync(pedidoCentral);
         }
 
-        public async Task<bool> DeletePedidoCentralAsync(int id)
+        public async Task MarkAsEnviadoAsync(int pedidoCentralId)
         {
-            var pedidoCentralDb = await _pedidoCentralRepository.GetPedidoCentralByIdAsync(id);
-            if (pedidoCentralDb == null)
-            {
-                throw new KeyNotFoundException($"PedidoCentral com ID {id} não encontrado.");
-            }
-
-            var resultado = await _pedidoCentralRepository.DeletePedidoCentralAsync(id);
-            if (!resultado)
-            {
-                throw new InvalidOperationException("Falha ao deletar o pedidoCentral");
-            }
-            return resultado;
-        }
-
-        public async Task<IEnumerable<PedidoCentralDTO>> GetAllPedidosCentralAsync()
-        {
-            var pedidoCentrals = await _pedidoCentralRepository.GetAllPedidosCentralAsync();
-            if (pedidoCentrals == null || !pedidoCentrals.Any())
-            {
-                throw new KeyNotFoundException("Nenhum pedidoCentral encontrado.");
-            }
-            
-            return pedidoCentrals.Select(r => (PedidoCentralDTO)r).ToList();
-        }
-
-        public async Task<PedidoCentralDTO> GetPedidoCentralByIdAsync(int id)
-        {
-            var pedidoCentral = await _pedidoCentralRepository.GetPedidoCentralByIdAsync(id);
+            var pedidoCentral = await _pedidoCentralRepository.GetByIdAsync(pedidoCentralId);
             if (pedidoCentral == null)
             {
-                throw new KeyNotFoundException($"PedidoCentral com ID {id} não encontrado.");
+                throw new KeyNotFoundException($"Pedido Central with ID {pedidoCentralId} not found.");
             }
-            return pedidoCentral;
-        }
-
-        public async Task<PedidoCentralDTO> UpdatePedidoCentralAsync(PedidoCentralDTO pedidoCentral)
-        {
-            ArgumentNullException.ThrowIfNull(pedidoCentral, nameof(pedidoCentral));
-            var pedidoCentralDb = await _pedidoCentralRepository.GetPedidoCentralByIdAsync(pedidoCentral.Id);
-            if (pedidoCentralDb == null)
-            {
-                throw new KeyNotFoundException($"PedidoCentral com ID {pedidoCentral.Id} não encontrado.");
-            }
-
-            var pedidoCentralAtualizado = await _pedidoCentralRepository.UpdatePedidoCentralAsync((PedidoCentral)pedidoCentral);
-            if (pedidoCentralAtualizado == null)
-            {
-                throw new InvalidOperationException("Falha ao atualizar o pedidoCentral");
-            }
-            return pedidoCentralAtualizado;
+            pedidoCentral.Status = StatusPedido.Enviado;
+            await _pedidoCentralRepository.UpdateAsync(pedidoCentral);
         }
     }
 }

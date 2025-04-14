@@ -3,7 +3,7 @@ using OrdersManagement.Domain.Enums;
 
 namespace OrdersManagement.Domain.DTOs
 {
-    public class PedidoCentralDTO
+    public class PedidoCentralResponseDTO
     {
         public int Id { get; set; }
         public string? NumeroPedido { get; set; }
@@ -11,9 +11,9 @@ namespace OrdersManagement.Domain.DTOs
 
         public ICollection<ProdutoPedidoCentralDTO>? ProdutosPedidoCentral { get; set; }
         
-        public static implicit operator PedidoCentralDTO(PedidoCentral entity)
+        public static implicit operator PedidoCentralResponseDTO(PedidoCentral entity)
         {
-            return new PedidoCentralDTO
+            return new PedidoCentralResponseDTO
             {
                 Id = entity.Id,
                 NumeroPedido = entity.NumeroPedido,

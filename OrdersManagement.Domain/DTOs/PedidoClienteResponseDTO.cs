@@ -1,4 +1,5 @@
 using OrdersManagement.Domain.Entities;
+using OrdersManagement.Domain.Enums;
 
 namespace OrdersManagement.Domain.DTOs
 {
@@ -6,6 +7,7 @@ namespace OrdersManagement.Domain.DTOs
     {
         public int Id { get; set; }
         public string? NumeroPedido { get; set; }
+        public StatusPedido? Status { get; set; }
 
         public ICollection<ProdutoPedidoClienteDTO>? ProdutosPedidoCliente { get; set; }
         

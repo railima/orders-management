@@ -16,17 +16,5 @@ namespace OrdersManagement.Domain.Entities
         public int RevendaId { get; set; }
         public Revenda? Revenda { get; set; }
         public ICollection<ProdutoPedidoCentral>? ProdutosPedidoCentral { get; set; }
-
-        public static implicit operator PedidoCentral(PedidoCentralDTO pedidoCentralDTO)
-        {
-            return new PedidoCentral
-            {
-                Id = pedidoCentralDTO.Id,
-                DataPedido = pedidoCentralDTO.DataPedido,
-                NumeroPedido = pedidoCentralDTO.NumeroPedido ?? Guid.NewGuid().ToString("N"),
-                RevendaId = pedidoCentralDTO.RevendaId,
-                ProdutosPedidoCentral = pedidoCentralDTO.ProdutosPedidoCentral?.Select(p => (ProdutoPedidoCentral)p).ToList() ?? new List<ProdutoPedidoCentral>()
-            };
-        }
     }
 }
