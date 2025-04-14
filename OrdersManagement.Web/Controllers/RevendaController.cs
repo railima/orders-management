@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OrdersManagement.Application.Interfaces.Services;
 using OrdersManagement.Domain.DTOs;
+using OrdersManagement.Domain.Enums;
 
 namespace OrdersManagement.Web.Controllers
 {
@@ -92,22 +93,31 @@ namespace OrdersManagement.Web.Controllers
         [HttpPost("{id}/pedido-central")]
         public async Task<IActionResult> IssuePedidoCentral(int id)
         {
-                var revenda = await _revendaService.GetRevendaByIdAsync(id);
-                if (revenda == null) return NotFound("Revenda não encontrada.");
+            var revenda = await _revendaService.GetRevendaByIdAsync(id);
+            if (revenda == null) return NotFound("Revenda não encontrada.");
 
-                var pedidosPendentes = await _pedidoClienteService.GetAllPendentesAsync(id);
-                int total = pedidosPendentes?.Sum(p => p.ProdutosPedidoCliente?.Count ?? 0) ?? 0;
-                if (total < 1000)
-                {
-                    return BadRequest("O pedido mínimo é de 1000 itens.");
-                }
+            var pedidosPendentes = await _pedidoClienteService.GetAllPendentesAsync(id);
+            int total = pedidosPendentes?.Sum(p => p.ProdutosPedidoCliente?.Sum(pp => pp.Quantidade) ?? 0) ?? 0;
+            if (total < 1000)
+            {
+                return BadRequest("O pedido mínimo é de 1000 itens.");
+            }
 
-                var itens = (ICollection<ProdutoPedidoCentralDTO>)pedidosPendentes.SelectMany(p => p.ProdutosPedidoCliente).ToList();
-                var pedidoCentral = new PedidoCentralRequestDTO
+            var itens = pedidosPendentes
+                .SelectMany(p => p.ProdutosPedidoCliente)
+                .Select(i => new ProdutoPedidoCentralDTO
                 {
-                    RevendaId = id,
-                    Itens = itens
-                };
+                    Id = i.Id,
+                    NomeProduto = i.NomeProduto,
+                    Quantidade = i.Quantidade
+                })
+                .ToList();
+
+            var pedidoCentral = new PedidoCentralRequestDTO
+            {
+                RevendaId = id,
+                Itens = itens
+            };
 
             try
             {
@@ -121,14 +131,18 @@ namespace OrdersManagement.Web.Controllers
 
                 foreach (var pedido in pedidosPendentes)
                 {
-                    await _pedidoCentralService.MarkAsEnviadoAsync(pedido.Id);
+                    await _pedidoClienteService.MarkAsEnviadoAsync(pedido.Id);
                 }
+
+                var status = StatusPedido.Enviado;
+                await _pedidoCentralService.CreatePedidoAsync(id, status, itens);
                 return Ok(response);
             }
             catch (HttpRequestException ex)
             {
-                await _pedidoCentralService.CreatePedidoPendenteAsync(id, itens);
-                return StatusCode(StatusCodes.Status503ServiceUnavailable, "API da Ambev indisponível. Pedido salvo como PENDENTE.");
+                var status = StatusPedido.EmEspera;
+                await _pedidoCentralService.CreatePedidoAsync(id, status, itens);
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, "API da Central indisponível. Pedido salvo como EM ESPERA.");
             }
         }
     }

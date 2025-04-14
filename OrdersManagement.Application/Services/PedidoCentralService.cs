@@ -16,12 +16,13 @@ namespace OrdersManagement.Application.Services
             _pedidoCentralRepository = pedidoCentralRepository;
         }
 
-        public Task<PedidoCentral> CreatePedidoPendenteAsync(int revendaId, IEnumerable<ProdutoPedidoCentralDTO> produtos)
+        public Task<PedidoCentral> CreatePedidoAsync(int revendaId, StatusPedido status, IEnumerable<ProdutoPedidoCentralDTO> produtos)
         {
             ArgumentNullException.ThrowIfNull(produtos, nameof(produtos));
             var pedidoCentral = new PedidoCentral
             {
                 RevendaId = revendaId,
+                Status = status,
                 ProdutosPedidoCentral = produtos.Select(p => new ProdutoPedidoCentral
                 {
                     Id = p.Id,
@@ -30,7 +31,7 @@ namespace OrdersManagement.Application.Services
                 }).ToList(),
             };
 
-            return _pedidoCentralRepository.CreatePedidoCentralAsync(pedidoCentral);
+            return _pedidoCentralRepository.CreatePedidoAsync(pedidoCentral);
         }
 
         public async Task MarkAsEnviadoAsync(int pedidoCentralId)

@@ -72,6 +72,22 @@ namespace OrdersManagement.Application.Services
             return cliente;
         }
 
+        public async Task<IEnumerable<PedidoClienteResponseDTO>> GetPedidosByClienteIdAsync(int id)
+        {
+            var cliente = await _clienteRepository.GetClienteByIdAsync(id);
+            if (cliente == null)
+            {
+                throw new KeyNotFoundException($"Cliente com ID {id} não encontrado.");
+            }
+
+            var pedidos = await _clienteRepository.GetPedidosByClienteIdAsync(id);
+            if (pedidos == null || !pedidos.Any())
+            {
+                throw new KeyNotFoundException($"Nenhum pedido encontrado para o cliente com ID {id}.");
+            }
+            return pedidos;
+        }
+
         public async Task<ClienteDTO> UpdateClienteAsync(ClienteDTO cliente)
         {
             ArgumentNullException.ThrowIfNull(cliente, nameof(cliente));

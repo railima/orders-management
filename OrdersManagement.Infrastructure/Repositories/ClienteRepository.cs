@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OrdersManagement.Application.Interfaces.Repositories;
+using OrdersManagement.Domain.DTOs;
 using OrdersManagement.Domain.Entities;
 using OrdersManagement.Infrastructure.Persistence;
 
@@ -41,6 +42,28 @@ namespace OrdersManagement.Infrastructure.Repositories
         public async Task<Cliente?> GetClienteByIdAsync(int id)
         {
             return await _context.Clientes.FindAsync(id);
+        }
+
+        public async Task<IEnumerable<PedidoClienteResponseDTO>> GetPedidosByClienteIdAsync(int id)
+        {
+            var pedidos = await _context.PedidosCliente
+                .Include(p => p.ProdutosPedidoCliente)
+                .Where(p => p.ClienteId == id)
+                .ToListAsync();
+
+            return pedidos.Select(p => new PedidoClienteResponseDTO
+            {
+                Id = p.Id,
+                NumeroPedido = p.NumeroPedido,
+                ProdutosPedidoCliente = p.ProdutosPedidoCliente?
+                    .Select(pp => new ProdutoPedidoClienteDTO
+                    {
+                        Id = pp.Id,
+                        NomeProduto = pp.NomeProduto,
+                        Quantidade = pp.Quantidade
+                    })
+                    .ToList() ?? new List<ProdutoPedidoClienteDTO>()
+            });
         }
 
         public async Task<Cliente> UpdateClienteAsync(Cliente cliente)
