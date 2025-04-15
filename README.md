@@ -26,7 +26,7 @@ Este projeto consiste em uma aplicação de gerenciamento de pedidos, seguindo p
 
 - **Pedidos Consolidados**:
   - Recebe pedidos de clientes (PedidoCliente) e consolida em um PedidoCentral.
-  - Pedido mínimo de 1000 unidades antes de enviar à API da Ambev.
+  - Pedido mínimo de 1000 unidades antes de enviar à API da Central.
 
 - **Resiliência e Retry**:
   - Pedidos que não são enviados devido à falha da API externa são salvos com `Status = EmEspera`.
